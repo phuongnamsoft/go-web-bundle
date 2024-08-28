@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html>
+<link rel="stylesheet" href="/css/vendor.css">
+<link rel="stylesheet" href="/css/app.css">
+<head>
+    <title>Main</title>
+</head>
+
+<body>
+
+<div class="h-screen w-screen flex bg-gray-200">
+
+    <div class="flex-1 flex flex-row">
+        {{template "partials/header" .}}
+        <div class="p-10">
+            {{embed}}
+        </div>
+    </div>
+    {{template "partials/footer" .}}
+</div>
+</body>
+
+</html>
