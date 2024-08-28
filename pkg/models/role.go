@@ -4,7 +4,6 @@ import (
 	"time"
 
 	"github.com/phuongnamsoft/go-web-bundle/app"
-	"github.com/phuongnamsoft/go-web-bundle/pkg/helpers"
 	"gorm.io/gorm"
 )
 
@@ -19,7 +18,7 @@ type Role struct {
 }
 
 func createRole(name string, description string) *Role {
-	slug := helpers.MakeSlug(name)
+	slug := helpers.makeSlug(name)
 	role := Role{
 		Name:        name,
 		Slug:        slug,
