@@ -21,19 +21,10 @@ type User struct {
 	EmailVerified bool    `json:"email_verified" gorm:"email_verified"`
 	Currency      string  `json:"currency" gorm:"currency"`
 	IsAdmin       bool    `json:"is_admin" gorm:"is_admin"`
+	Roles         []Role  `gorm:"many2many:user_roles;"`
 	CreatedAt     time.Time
 	UpdatedAt     time.Time
 	DeletedAt     gorm.DeletedAt `gorm:"index"`
-}
-
-type Role struct {
-	ID          uint   `gorm:"primarykey"`
-	Name        string `json:"name" gorm:"name"`               //nolint:gofmt
-	Slug        string `json:"slug" gorm:"slug"`               //nolint:gofmt
-	Description string `json:"description" gorm:"description"` //nolint:gofmt
-	CreatedAt   time.Time
-	UpdatedAt   time.Time
-	DeletedAt   gorm.DeletedAt `gorm:"index"`
 }
 
 func AllUsers() []User {
@@ -63,11 +54,6 @@ func GetUserById(id interface{}) (*User, error) {
 	if err := app.Http.Database.Preload("Files").Where("id = ? ", id).First(&user).Error; err != nil {
 		return nil, err
 	}
-	settings, err := user.Settings()
-	if err != nil {
-		// do something sensible
-	}
-	user.UserSetting = settings
 	return &user, nil
 }
 
