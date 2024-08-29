@@ -20,7 +20,6 @@ type User struct {
 	Balance       float32 `json:"balance" gorm:"balance"`
 	EmailVerified bool    `json:"email_verified" gorm:"email_verified"`
 	Currency      string  `json:"currency" gorm:"currency"`
-	IsAdmin       bool    `json:"is_admin" gorm:"is_admin"`
 	Roles         []Role  `gorm:"many2many:user_roles;"`
 	CreatedAt     time.Time
 	UpdatedAt     time.Time
@@ -68,7 +67,6 @@ func (u *User) Update() error {
 		}
 	}
 	app.Http.Database.First(&u)
-	u.Settings()
 	return nil
 }
 
@@ -84,13 +82,23 @@ func (u *User) AddAmount(amount string, AlreadyAdded bool) {
 	app.Http.Database.Updates(&u)
 }
 
-func (u *User) Settings() (UserSetting, error) {
-	userSettings := UserSetting{UserID: u.ID}
-	err := userSettings.Get()
+// func (u *User) Settings() (UserSetting, error) {
+// 	userSettings := UserSetting{UserID: u.ID}
+// 	err := userSettings.Get()
+// 	if err != nil {
+// 		return UserSetting{}, err
+// 	}
+// 	u.UserSetting = userSettings
+// 	return userSettings, nil
+// }
+
+func (u *User) GetRoles() (UserRole, error) {
+	userRoles := UserRole{UserID: u.ID}
+	err := userRoles.Get()
 	if err != nil {
 		return UserSetting{}, err
 	}
-	u.UserSetting = userSettings
+	u.Roles = userRoles
 	return userSettings, nil
 }
 
