@@ -4,6 +4,7 @@ import (
 	"time"
 
 	"github.com/phuongnamsoft/go-web-bundle/app"
+	"github.com/phuongnamsoft/go-web-bundle/pkg/helpers"
 	"gorm.io/gorm"
 )
 
@@ -17,8 +18,17 @@ type Role struct {
 	DeletedAt   gorm.DeletedAt `gorm:"index"`
 }
 
-func createRole(name string, description string) *Role {
-	slug := helpers.makeSlug(name)
+func CheckSlug(slug string) bool {
+	var role Role
+	app.Http.Database.Where("slug = ?", slug).First(&role)
+	if role.ID == 0 {
+		return false
+	}
+	return true
+}
+
+func CreateRole(name string, description string) *Role {
+	slug := helpers.MakeSlug(name)
 	role := Role{
 		Name:        name,
 		Slug:        slug,
