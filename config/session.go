@@ -24,17 +24,6 @@ func (s *SessionConfig) Setup() error {
 		PoolSize:    8,                //nolint:gomnd
 		IdleTimeout: 30 * time.Second, //nolint:gomnd
 		DB:          s.DB,
-		/*MaxRetries:         0,
-		MinRetryBackoff:    0,
-		MaxRetryBackoff:    0,
-		DialTimeout:        0,
-		ReadTimeout:        0,
-		WriteTimeout:       0,
-		MinIdleConns:       0,
-		MaxConnAge:         0,
-		PoolTimeout:        0,
-		IdleCheckFrequency: 0,
-		TLSConfig:          nil,*/
 	})
 	if err != nil {
 		return err

@@ -9,10 +9,11 @@ import (
 )
 
 type Role struct {
-	ID          uint   `gorm:"primarykey"`
-	Name        string `json:"name" gorm:"name"`               //nolint:gofmt
-	Slug        string `json:"slug" gorm:"slug"`               //nolint:gofmt
-	Description string `json:"description" gorm:"description"` //nolint:gofmt
+	ID          uint         `gorm:"primarykey"`
+	Name        string       `json:"name" gorm:"name"`               //nolint:gofmt
+	Slug        string       `json:"slug" gorm:"slug"`               //nolint:gofmt
+	Description string       `json:"description" gorm:"description"` //nolint:gofmt
+	Permissions []Permission `gorm:"many2many:role_permissions;"`
 	CreatedAt   time.Time
 	UpdatedAt   time.Time
 	DeletedAt   gorm.DeletedAt `gorm:"index"`
@@ -33,7 +34,7 @@ func GenerateSlug(slug string) string {
 
 	if CheckSlugExists(slug) {
 		for i := 1; i < 10; i++ {
-			newSlug := slug + "-" + string(i)
+			newSlug := slug + "-" + string(rune(i))
 			if !CheckSlugExists(newSlug) {
 				return newSlug
 			}
@@ -41,6 +42,13 @@ func GenerateSlug(slug string) string {
 	}
 
 	return slug
+}
+
+func (r *Role) GetRolePermissions() []Permission {
+	var permissions []Permission
+	app.Http.Database.Model(&r).Association("Permissions").Find(&permissions)
+	r.Permissions = permissions
+	return permissions
 }
 
 func CreateRole(name string, description string) *Role {
@@ -56,7 +64,7 @@ func CreateRole(name string, description string) *Role {
 	return role
 }
 
-func seed() {
+func Seed() {
 	roles := []Role{
 		{Name: "Admin", Description: "Admin Role"},
 		{Name: "User", Description: "User Role"},
@@ -66,4 +74,3 @@ func seed() {
 		CreateRole(role.Name, role.Description)
 	}
 }
-

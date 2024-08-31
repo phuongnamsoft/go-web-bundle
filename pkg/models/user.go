@@ -2,7 +2,6 @@ package models
 
 import (
 	"fmt"
-	"strconv"
 	"time"
 
 	"github.com/phuongnamsoft/go-web-bundle/config"
@@ -12,15 +11,14 @@ import (
 )
 
 type User struct {
-	ID            uint    `gorm:"primarykey"`
-	FirstName     string  `json:"first_name" gorm:"first_name"` //nolint:gofmt
-	LastName      string  `json:"last_name" gorm:"last_name"`   //nolint:gofmt
-	Email         string  `json:"email" gorm:"email"`
-	Password      string  `json:"-" gorm:"password"`
-	Balance       float32 `json:"balance" gorm:"balance"`
-	EmailVerified bool    `json:"email_verified" gorm:"email_verified"`
-	Currency      string  `json:"currency" gorm:"currency"`
-	Roles         []Role  `gorm:"many2many:user_roles;"`
+	ID            uint   `gorm:"primarykey"`
+	FirstName     string `json:"first_name" gorm:"first_name"` //nolint:gofmt
+	LastName      string `json:"last_name" gorm:"last_name"`   //nolint:gofmt
+	Email         string `json:"email" gorm:"email"`
+	Password      string `json:"-" gorm:"password"`
+	EmailVerified bool   `json:"email_verified" gorm:"email_verified"`
+	Currency      string `json:"currency" gorm:"currency"`
+	Roles         []Role `gorm:"many2many:user_roles;"`
 	CreatedAt     time.Time
 	UpdatedAt     time.Time
 	DeletedAt     gorm.DeletedAt `gorm:"index"`
@@ -70,36 +68,25 @@ func (u *User) Update() error {
 	return nil
 }
 
-func (u *User) AddAmount(amount string, AlreadyAdded bool) {
-	if AlreadyAdded {
-		return
-	}
-	value, err := strconv.ParseFloat(amount, 32)
-	if err != nil {
-		// do something sensible
-	}
-	u.Balance += float32(value)
-	app.Http.Database.Updates(&u)
+func (u *User) GetUserRoles() []Role {
+	u.Roles = []Role{}
+	app.Http.Database.Model(&u).Association("Roles").Find(&u.Roles)
+
+	return u.Roles
 }
 
-// func (u *User) Settings() (UserSetting, error) {
-// 	userSettings := UserSetting{UserID: u.ID}
-// 	err := userSettings.Get()
-// 	if err != nil {
-// 		return UserSetting{}, err
-// 	}
-// 	u.UserSetting = userSettings
-// 	return userSettings, nil
-// }
+func (u *User) AddRole(role Role) {
+	app.Http.Database.Model(&u).Association("Roles").Append(&role)
+}
 
-func (u *User) GetRoles() (UserRole, error) {
-	userRoles := UserRole{UserID: u.ID}
-	err := userRoles.Get()
-	if err != nil {
-		return UserSetting{}, err
+func (u *User) GetUserPermissions() []Permission {
+	var permissions []Permission
+	roles := u.GetUserRoles()
+	for _, role := range roles {
+		var rolePermissions []Permission = role.GetRolePermissions()
+		permissions = append(permissions, rolePermissions...)
 	}
-	u.Roles = userRoles
-	return userSettings, nil
+	return permissions
 }
 
 func (u *User) Can(permission string) bool {
